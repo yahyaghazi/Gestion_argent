@@ -16,25 +16,76 @@ class GestionFinancesApp:
         self.creer_interface()
 
     def creer_interface(self):
-        # Interface utilisateur simplifiée
-        self.label_solde = tk.Label(self.root, text="Solde Global : 0.00€", font=("Arial", 12), fg="blue")
-        self.label_solde.pack(pady=10)
-
-        self.button_ajouter_depense = tk.Button(self.root, text="Ajouter Dépense", command=self.ajouter_depense)
-        self.button_ajouter_depense.pack(pady=5)
-
-        self.button_ajouter_revenu = tk.Button(self.root, text="Ajouter Revenu", command=self.ajouter_revenu)
-        self.button_ajouter_revenu.pack(pady=5)
-
-        self.button_afficher_depenses = tk.Button(self.root, text="Afficher Dépenses", command=self.afficher_depenses)
-        self.button_afficher_depenses.pack(pady=5)
-
-        self.button_afficher_revenus = tk.Button(self.root, text="Afficher Revenus", command=self.afficher_revenus)
-        self.button_afficher_revenus.pack(pady=5)
-
-        self.button_graphique = tk.Button(self.root, text="Graphes", command=self.afficher_graphiques)
-        self.button_graphique.pack(pady=5)
-
+        # Frame principale
+        main_frame = tk.Frame(self.root)
+        main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+        
+        # Titre et solde
+        titre_frame = tk.Frame(main_frame)
+        titre_frame.pack(fill=tk.X, pady=10)
+        
+        tk.Label(titre_frame, text="Gestion des Finances Personnelles", 
+            font=("Arial", 16, "bold")).pack(side=tk.LEFT)
+        
+        self.label_solde = tk.Label(titre_frame, text="Solde Global : 0.00€", 
+                                font=("Arial", 14), fg="blue")
+        self.label_solde.pack(side=tk.RIGHT)
+        
+        # Separator
+        tk.Frame(main_frame, height=2, bg="gray").pack(fill=tk.X, pady=5)
+        
+        # Buttons frame
+        buttons_frame = tk.Frame(main_frame)
+        buttons_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+        
+        # Transaction buttons
+        tx_frame = tk.LabelFrame(buttons_frame, text="Transactions", padx=10, pady=10)
+        tx_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5)
+        
+        self.button_ajouter_depense = tk.Button(tx_frame, text="Ajouter Dépense", 
+                                            command=self.ajouter_depense,
+                                            bg="#ff9999", padx=10, pady=5)
+        self.button_ajouter_depense.pack(fill=tk.X, pady=5)
+        
+        self.button_ajouter_revenu = tk.Button(tx_frame, text="Ajouter Revenu", 
+                                            command=self.ajouter_revenu,
+                                            bg="#99ff99", padx=10, pady=5)
+        self.button_ajouter_revenu.pack(fill=tk.X, pady=5)
+        
+        # View buttons
+        view_frame = tk.LabelFrame(buttons_frame, text="Consulter", padx=10, pady=10)
+        view_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5)
+        
+        self.button_afficher_depenses = tk.Button(view_frame, text="Afficher Dépenses", 
+                                                command=self.afficher_depenses,
+                                                bg="#ccccff", padx=10, pady=5)
+        self.button_afficher_depenses.pack(fill=tk.X, pady=5)
+        
+        self.button_afficher_revenus = tk.Button(view_frame, text="Afficher Revenus", 
+                                            command=self.afficher_revenus,
+                                            bg="#ccffcc", padx=10, pady=5)
+        self.button_afficher_revenus.pack(fill=tk.X, pady=5)
+        
+        # Analysis buttons
+        analysis_frame = tk.LabelFrame(buttons_frame, text="Analyse", padx=10, pady=10)
+        analysis_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5)
+        
+        self.button_graphique = tk.Button(analysis_frame, text="Graphiques", 
+                                        command=self.afficher_graphiques,
+                                        bg="#ffcccc", padx=10, pady=5)
+        self.button_graphique.pack(fill=tk.X, pady=5)
+        
+        self.button_tendance = tk.Button(analysis_frame, text="Tendances", 
+                                        command=self.graphique_tendance,
+                                        bg="#ffffcc", padx=10, pady=5)
+        self.button_tendance.pack(fill=tk.X, pady=5)
+        
+        self.button_previsions = tk.Button(analysis_frame, text="Prévisions", 
+                                        command=self.menu_previsions,
+                                        bg="#ccffff", padx=10, pady=5)
+        self.button_previsions.pack(fill=tk.X, pady=5)
+        
+        # Mettre à jour le solde
         self.mettre_a_jour_solde()
 
     def mettre_a_jour_solde(self):
@@ -234,3 +285,62 @@ class GestionFinancesApp:
         canvas_camembert = FigureCanvasTkAgg(figure_camembert, master=cadre_graphique)
         canvas_camembert.draw()
         canvas_camembert.get_tk_widget().pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+    def menu_previsions(self):
+        """Affiche une fenêtre avec les prévisions budgétaires."""
+        previsions = self.gestionnaire.prevoirBudget(3)
+        
+        if not previsions:
+            messagebox.showinfo("Information", "Données insuffisantes pour générer des prévisions. " +
+                            "Il faut au moins 3 mois de données.")
+            return
+        
+        fenetre = tk.Toplevel(self.root)
+        fenetre.title("Prévisions Budgétaires")
+        fenetre.geometry("500x300")
+        
+        tk.Label(fenetre, text="Prévisions pour les 3 prochains mois", font=("Arial", 14)).pack(pady=10)
+        
+        # Créer un tableau pour afficher les prévisions
+        tableau = tk.Frame(fenetre)
+        tableau.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+        
+        # En-têtes
+        headers = ["Mois", "Revenus", "Dépenses", "Solde Projeté"]
+        for i, header in enumerate(headers):
+            tk.Label(tableau, text=header, font=("Arial", 12, "bold"), borderwidth=1, relief="solid", 
+                width=12, bg="#f0f0f0").grid(row=0, column=i, sticky="nsew", padx=1, pady=1)
+        
+        # Données
+        for i, prevision in enumerate(previsions):
+            row = i + 1
+            tk.Label(tableau, text=prevision["mois"], borderwidth=1, relief="solid").grid(
+                row=row, column=0, sticky="nsew", padx=1, pady=1)
+            tk.Label(tableau, text=f"{prevision['revenus_prevus']:.2f}€", borderwidth=1, relief="solid").grid(
+                row=row, column=1, sticky="nsew", padx=1, pady=1)
+            tk.Label(tableau, text=f"{prevision['depenses_prevues']:.2f}€", borderwidth=1, relief="solid").grid(
+                row=row, column=2, sticky="nsew", padx=1, pady=1)
+            
+            # Coloriser le solde projeté
+            solde = prevision["solde_projete"]
+            couleur = "green" if solde >= 0 else "red"
+            tk.Label(tableau, text=f"{solde:.2f}€", borderwidth=1, relief="solid", fg=couleur).grid(
+                row=row, column=3, sticky="nsew", padx=1, pady=1)
+        
+        # Bouton pour exporter le rapport
+        def exporter():
+            fichier = self.gestionnaire.exporter_rapport()
+            messagebox.showinfo("Rapport exporté", f"Le rapport a été exporté dans le fichier : {fichier}")
+        
+        tk.Button(fenetre, text="Exporter rapport complet", command=exporter).pack(pady=10)
+
+    def graphique_tendance(self):
+        """Affiche le graphique de tendance des revenus et dépenses."""
+        fenetre = tk.Toplevel(self.root)
+        fenetre.title("Tendance Revenus/Dépenses")
+        fenetre.geometry("800x500")
+        
+        figure = self.gestionnaire.creer_graphique_tendance()
+        canvas = FigureCanvasTkAgg(figure, master=fenetre)
+        canvas.draw()
+        canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
