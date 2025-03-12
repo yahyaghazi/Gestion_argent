@@ -1,15 +1,28 @@
-# Application de Gestion Financière Personnelle
+# Application de Gestion Financière et de Stock
 
-Cette application Python permet de gérer vos finances personnelles en suivant vos revenus et dépenses, et en visualisant votre situation financière à l'aide de graphiques.
+Cette application Python permet de gérer vos finances personnelles et votre inventaire de stock dans une interface graphique intuitive.
 
 ## Fonctionnalités
 
+### Module de Gestion Financière
 - Enregistrement des dépenses par catégorie
 - Enregistrement des revenus par source
-- Affichage du solde global
+- Calcul et affichage du solde global
 - Visualisation graphique des dépenses par catégorie
 - Suivi de l'évolution du solde dans le temps
+- Analyse des tendances financières
+- Prévisions budgétaires
 - Recherche de transactions (dépenses/revenus)
+
+### Module de Gestion de Stock
+- Suivi complet des articles en stock
+- Gestion des entrées et sorties de stock
+- Alertes de stock bas et ruptures
+- Suivi des dates de péremption
+- Gestion des fournisseurs
+- Historique complet des mouvements
+- Rapports et statistiques
+- Recherche d'articles par nom ou catégorie
 
 ## Prérequis
 
@@ -23,10 +36,10 @@ L'application nécessite les packages Python suivants :
 
 ## Installation
 
-1. Clonez ce dépôt :
+1. Téléchargez l'application depuis notre dépôt :
 ```
-git clone https://github.com/votre-nom/Gestion_argent.git
-cd Gestion_argent
+git clone https://github.com/votre-nom/Gestion_Finances_Stock.git
+cd Gestion_Finances_Stock
 ```
 
 2. Installez les dépendances :
@@ -39,44 +52,48 @@ pip install -r requirements.txt
 python main.py
 ```
 
-## Structure du projet
-
-- `main.py` : Point d'entrée de l'application
-- `GestionFinancesApp.py` : Interface utilisateur graphique
-- `GestionnaireFinancier.py` : Logique métier pour la gestion des finances
-- `Depense.py` : Modèle de données pour les dépenses
-- `Revenu.py` : Modèle de données pour les revenus
-- `Depenses.csv` : Stockage des dépenses
-- `Revenus.csv` : Stockage des revenus
-
 ## Utilisation
 
-### Ajouter une dépense
-1. Cliquez sur "Ajouter Dépense"
-2. Remplissez le montant, la catégorie et sélectionnez la date
-3. Validez en cliquant sur "Ajouter"
+### Gestion Financière
+1. **Ajouter une dépense**
+   - Cliquez sur "Ajouter Dépense"
+   - Remplissez le montant, la catégorie et sélectionnez la date
+   - Validez en cliquant sur "Ajouter"
 
-### Ajouter un revenu
-1. Cliquez sur "Ajouter Revenu"
-2. Remplissez le montant, la source et sélectionnez la date
-3. Validez en cliquant sur "Ajouter"
+2. **Ajouter un revenu**
+   - Cliquez sur "Ajouter Revenu"
+   - Remplissez le montant, la source et sélectionnez la date
+   - Validez en cliquant sur "Ajouter"
 
-### Consulter les dépenses et revenus
-- Cliquez sur "Afficher Dépenses" ou "Afficher Revenus"
-- Utilisez la barre de recherche pour filtrer les résultats
+3. **Visualiser les graphiques**
+   - Cliquez sur "Graphiques" pour afficher les visualisations
+   - Cliquez sur "Tendances" pour voir l'évolution des revenus et dépenses
+   - Cliquez sur "Prévisions" pour accéder aux prévisions budgétaires
 
-### Visualiser les graphiques
-- Cliquez sur "Graphes" pour afficher les visualisations
-  - Histogramme du solde cumulé par mois
-  - Camembert des dépenses par catégorie
+### Gestion de Stock
+1. **Ajouter un article**
+   - Cliquez sur "Ajouter Article"
+   - Remplissez tous les champs obligatoires (ID, nom, catégorie)
+   - Ajoutez les informations optionnelles si nécessaire
+   - Validez en cliquant sur "Valider"
 
-## Personnalisation
+2. **Gérer le stock**
+   - Utilisez "Entrée Stock" pour ajouter des quantités
+   - Utilisez "Sortie Stock" pour retirer des quantités
+   - Utilisez "Ajuster Stock" pour corriger le niveau de stock
 
-Vous pouvez facilement modifier les fichiers pour ajouter de nouvelles fonctionnalités :
-- Ajouter de nouveaux types de graphiques dans `GestionnaireFinancier.py`
-- Modifier l'interface utilisateur dans `GestionFinancesApp.py`
-- Étendre les modèles de données dans `Depense.py` et `Revenu.py`
+3. **Consulter les rapports**
+   - Cliquez sur "Rapports" pour accéder aux statistiques de stock
+   - Visualisez les articles en alerte et en rupture
+   - Consultez l'historique des mouvements
 
-## Contribution
+## Support
 
-Les contributions sont les bienvenues ! N'hésitez pas à ouvrir une issue ou à soumettre une pull request.
+Pour toute question ou assistance, veuillez nous contacter à l'adresse suivante :
+support@gestion-finances-stock.com
+
+## Licence
+
+Ce logiciel est distribué sous licence propriétaire. L'utilisation est autorisée mais la modification du code source est strictement interdite. Veuillez consulter le fichier LICENSE pour plus de détails.
+
+© 2025 Tous droits réservés.
