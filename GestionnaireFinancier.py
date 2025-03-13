@@ -269,3 +269,4 @@ class GestionnaireFinancier:
                             f"Solde projeté = {p['solde_projete']:.2f}€\n")
             
             return nom_fichier
+    

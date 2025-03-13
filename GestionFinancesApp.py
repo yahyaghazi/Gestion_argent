@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import ttk, messagebox  # Ajoutez ttk ici
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import datetime
 import numpy as np
@@ -8,6 +8,8 @@ from tkcalendar import Calendar
 from GestionnaireFinancier import GestionnaireFinancier
 from Revenu import Revenu
 from Depense import Depense
+from IntegrationBancaire import IntegrationBancaireUI
+import json
 
 class GestionFinancesApp:
     def __init__(self, root):
@@ -41,7 +43,12 @@ class GestionFinancesApp:
         # Transaction buttons
         tx_frame = tk.LabelFrame(buttons_frame, text="Transactions", padx=10, pady=10)
         tx_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5)
-        
+
+        self.button_api_bancaire = tk.Button(tx_frame, text="Synchroniser Banque", 
+                                    command=self.ouvrir_integration_bancaire,
+                                    bg="#ffccff", padx=10, pady=5)
+        self.button_api_bancaire.pack(fill=tk.X, pady=5)
+
         self.button_ajouter_depense = tk.Button(tx_frame, text="Ajouter Dépense", 
                                             command=self.ajouter_depense,
                                             bg="#ff9999", padx=10, pady=5)
@@ -92,94 +99,502 @@ class GestionFinancesApp:
         solde = self.gestionnaire.calculer_solde()
         self.label_solde.config(text=f"Solde Global : {solde:.2f}€")
 
+# Améliorations pour la méthode ajouter_depense dans GestionFinancesApp.py
+
     def ajouter_depense(self):
+        """
+        Crée une fenêtre popup améliorée pour ajouter une dépense
+        avec plus d'options et une meilleure expérience utilisateur
+        """
         # Créer une fenêtre popup
         fenetre = tk.Toplevel(self.root)
         fenetre.title("Ajouter une Dépense")
-        fenetre.geometry("300x250")
+        fenetre.geometry("450x500")
+        fenetre.grab_set()
 
-        # Widgets pour saisir les informations
-        tk.Label(fenetre, text="Montant (€)").pack(pady=5)
-        entree_montant = tk.Entry(fenetre)
-        entree_montant.pack(pady=5)
+        # Frame principale avec padding
+        main_frame = tk.Frame(fenetre, padx=20, pady=15)
+        main_frame.pack(fill=tk.BOTH, expand=True)
 
-        tk.Label(fenetre, text="Catégorie").pack(pady=5)
-        entree_categorie = tk.Entry(fenetre)
-        entree_categorie.pack(pady=5)
+        # Titre
+        titre_label = tk.Label(main_frame, text="Nouvelle Dépense", font=("Arial", 14, "bold"))
+        titre_label.pack(anchor=tk.W, pady=(0, 15))
 
-        tk.Label(fenetre, text="Date (YYYY-MM-DD)").pack(pady=5)
+        # Frame pour le formulaire - utiliser grid pour un meilleur alignement
+        form_frame = tk.Frame(main_frame)
+        form_frame.pack(fill=tk.X)
+
+        # 1. Montant avec symbole €
+        tk.Label(form_frame, text="Montant :", font=("Arial", 10, "bold")).grid(row=0, column=0, sticky="w", pady=8)
+        montant_frame = tk.Frame(form_frame)
+        montant_frame.grid(row=0, column=1, sticky="w", pady=8)
         
-        # Ajouter un calendrier pour choisir la date
-        calendrier = Calendar(fenetre, selectmode='day', date_pattern='y-mm-dd')
-        calendrier.pack(pady=5)
+        entree_montant = tk.Entry(montant_frame, width=15, font=("Arial", 12))
+        entree_montant.pack(side=tk.LEFT)
+        tk.Label(montant_frame, text="€", font=("Arial", 12)).pack(side=tk.LEFT, padx=5)
+        
+        # 2. Catégorie avec liste déroulante des catégories existantes
+        tk.Label(form_frame, text="Catégorie :", font=("Arial", 10, "bold")).grid(row=1, column=0, sticky="w", pady=8)
+        
+        # Récupérer les catégories existantes
+        categories_existantes = set()
+        
+        # D'abord des catégories à partir des dépenses existantes
+        for depense in self.gestionnaire.depenses:
+            categories_existantes.add(depense.categorie)
+        
+        # Ensuite, ajouter les catégories du fichier JSON
+        try:
+            with open("categories.json", "r", encoding="utf-8") as f:
+                categories_json = json.load(f)
+                for _, categorie in categories_json.get("depenses", {}).items():
+                    categories_existantes.add(categorie)
+        except (FileNotFoundError, json.JSONDecodeError):
+            pass
+        
+        # Convertir en liste triée
+        categories_liste = sorted(list(categories_existantes))
+        
+        # ComboBox pour les catégories existantes + option de nouvelle catégorie
+        combo_categories = ttk.Combobox(form_frame, width=25, font=("Arial", 10))
+        combo_categories['values'] = [""] + categories_liste + ["-- Nouvelle catégorie --"]
+        combo_categories.grid(row=1, column=1, sticky="w", pady=8)
+
+        
+        # Entrée pour nouvelle catégorie (initialement cachée)
+        entree_nouvelle_categorie = tk.Entry(form_frame, width=25, font=("Arial", 10))
+        entree_nouvelle_categorie.grid(row=2, column=1, sticky="w", pady=8)
+        entree_nouvelle_categorie.grid_remove()
+        
+        # Étiquette pour nouvelle catégorie (initialement cachée)
+        label_nouvelle_categorie = tk.Label(form_frame, text="Nouvelle :", font=("Arial", 10))
+        label_nouvelle_categorie.grid(row=2, column=0, sticky="w", pady=8)
+        label_nouvelle_categorie.grid_remove()
+        
+        # Fonction pour gérer l'affichage du champ nouvelle catégorie
+        def on_categorie_change(event):
+            if combo_categories.get() == "-- Nouvelle catégorie --":
+                label_nouvelle_categorie.grid()
+                entree_nouvelle_categorie.grid()
+                entree_nouvelle_categorie.focus_set()
+            else:
+                label_nouvelle_categorie.grid_remove()
+                entree_nouvelle_categorie.grid_remove()
+        
+        combo_categories.bind("<<ComboboxSelected>>", on_categorie_change)
+        
+        # 3. Date avec calendrier
+        tk.Label(form_frame, text="Date :", font=("Arial", 10, "bold")).grid(row=3, column=0, sticky="w", pady=8)
+        
+        calendrier = Calendar(form_frame, selectmode='day', date_pattern='y-mm-dd',
+                            background='#f0f0f0', foreground='black', 
+                            selectbackground='#4a6984', selectforeground='white')
+        calendrier.grid(row=3, column=1, sticky="w", pady=8)
+        
+        # 4. Option de récurrence
+        tk.Label(form_frame, text="Récurrence :", font=("Arial", 10, "bold")).grid(row=4, column=0, sticky="w", pady=8)
+        
+        recurrence_options = ["Aucune", "Mensuelle", "Trimestrielle", "Annuelle"]
+        combo_recurrence = ttk.Combobox(form_frame, values=recurrence_options, width=15, font=("Arial", 10))
+        combo_recurrence.current(0)
+        combo_recurrence.grid(row=4, column=1, sticky="w", pady=8)
+        
+        # 5. Notes/Description
+        tk.Label(form_frame, text="Notes :", font=("Arial", 10, "bold")).grid(row=5, column=0, sticky="nw", pady=8)
+        
+        entree_notes = tk.Text(form_frame, width=25, height=3, font=("Arial", 10))
+        entree_notes.grid(row=5, column=1, sticky="w", pady=8)
+        
+        # Frame pour les boutons
+        boutons_frame = tk.Frame(main_frame)
+        boutons_frame.pack(pady=20, fill=tk.X)
         
         # Fonction pour valider l'entrée
         def valider():
             try:
-                montant = float(entree_montant.get())
-                categorie = entree_categorie.get()
-                date_str = calendrier.get_date()  # Récupérer la date sélectionnée
+                # Récupérer et valider les valeurs
+                try:
+                    montant = float(entree_montant.get().replace(',', '.'))
+                    if montant <= 0:
+                        raise ValueError("Le montant doit être supérieur à zéro.")
+                except ValueError as e:
+                    messagebox.showerror("Erreur", f"Montant invalide: {str(e)}")
+                    return
+                
+                # Récupérer la catégorie
+                if combo_categories.get() == "-- Nouvelle catégorie --":
+                    categorie = entree_nouvelle_categorie.get().strip()
+                    if not categorie:
+                        messagebox.showerror("Erreur", "Veuillez entrer la nouvelle catégorie.")
+                        return
+                else:
+                    categorie = combo_categories.get().strip()
+                    if not categorie:
+                        messagebox.showerror("Erreur", "Veuillez sélectionner une catégorie.")
+                        return
+                
+                # Récupérer la date
+                date_str = calendrier.get_date()
                 date = datetime.datetime.strptime(date_str, "%Y-%m-%d").date()
-
-                # Vérifier que les champs ne sont pas vides
-                if not categorie.strip():
-                    raise ValueError("La catégorie ne peut pas être vide.")
-                if montant <= 0:
-                    raise ValueError("Le montant doit être supérieur à 0.")
-
+                
+                # Récupérer les notes
+                notes = entree_notes.get("1.0", tk.END).strip()
+                
                 # Ajouter la dépense
-                self.gestionnaire.depenses.append(Depense(montant, categorie, date))
+                from Depense import Depense
+                nouvelle_depense = Depense(montant, categorie, date)
+                
+                # Ajouter les notes si le modèle de Depense est étendu pour les prendre en charge
+                # (nécessiterait une modification du modèle Depense)
+                # nouvelle_depense.notes = notes
+                
+                self.gestionnaire.depenses.append(nouvelle_depense)
                 self.gestionnaire.sauvegarder_depenses()
+                
+                # Gérer la récurrence si nécessaire
+                if combo_recurrence.get() != "Aucune":
+                    self._creer_depenses_recurrentes(nouvelle_depense, combo_recurrence.get())
+                
                 self.mettre_a_jour_solde()
+                messagebox.showinfo("Succès", f"Dépense de {montant}€ ajoutée dans la catégorie '{categorie}'.")
                 fenetre.destroy()
-            except ValueError as e:
-                messagebox.showerror("Erreur", f"Erreur : {str(e)}")
+                
+            except Exception as e:
+                messagebox.showerror("Erreur", f"Une erreur est survenue : {str(e)}")
 
-        # Bouton pour valider
-        bouton_valider = tk.Button(fenetre, text="Ajouter", command=valider)
-        bouton_valider.pack(pady=10)
+        # Boutons avec icônes et couleurs
+        bouton_valider = tk.Button(boutons_frame, text="Ajouter la dépense", command=valider, 
+                                bg="#4CAF50", fg="white", padx=15, pady=8, font=("Arial", 10, "bold"))
+        bouton_valider.pack(side=tk.LEFT, padx=5)
+        
+        bouton_annuler = tk.Button(boutons_frame, text="Annuler", command=fenetre.destroy, 
+                                bg="#f44336", fg="white", padx=15, pady=8, font=("Arial", 10))
+        bouton_annuler.pack(side=tk.LEFT, padx=5)
+        
+        # Focus sur le champ montant au démarrage
+        entree_montant.focus_set()
 
     def ajouter_revenu(self):
+        """
+        Crée une fenêtre popup améliorée pour ajouter un revenu
+        avec plus d'options et une meilleure expérience utilisateur
+        """
         # Créer une fenêtre popup
         fenetre = tk.Toplevel(self.root)
         fenetre.title("Ajouter un Revenu")
-        fenetre.geometry("300x250")
+        fenetre.geometry("450x500")
+        fenetre.grab_set()
 
-        # Widgets pour saisir les informations
-        tk.Label(fenetre, text="Montant (€)").pack(pady=5)
-        entree_montant = tk.Entry(fenetre)
-        entree_montant.pack(pady=5)
+        # Frame principale avec padding
+        main_frame = tk.Frame(fenetre, padx=20, pady=15)
+        main_frame.pack(fill=tk.BOTH, expand=True)
 
-        tk.Label(fenetre, text="Source").pack(pady=5)
-        entree_source = tk.Entry(fenetre)
-        entree_source.pack(pady=5)
+        # Titre
+        titre_label = tk.Label(main_frame, text="Nouveau Revenu", font=("Arial", 14, "bold"), fg="#2E7D32")
+        titre_label.pack(anchor=tk.W, pady=(0, 15))
 
-        tk.Label(fenetre, text="Date (YYYY-MM-DD)").pack(pady=5)
+        # Frame pour le formulaire - utiliser grid pour un meilleur alignement
+        form_frame = tk.Frame(main_frame)
+        form_frame.pack(fill=tk.X)
 
-        # Ajouter un calendrier pour choisir la date
-        calendrier = Calendar(fenetre, selectmode='day', date_pattern='y-mm-dd')
-        calendrier.pack(pady=5)
+        # 1. Montant avec symbole €
+        tk.Label(form_frame, text="Montant :", font=("Arial", 10, "bold")).grid(row=0, column=0, sticky="w", pady=8)
+        montant_frame = tk.Frame(form_frame)
+        montant_frame.grid(row=0, column=1, sticky="w", pady=8)
+        
+        entree_montant = tk.Entry(montant_frame, width=15, font=("Arial", 12))
+        entree_montant.pack(side=tk.LEFT)
+        tk.Label(montant_frame, text="€", font=("Arial", 12)).pack(side=tk.LEFT, padx=5)
+        
+        # 2. Source avec liste déroulante des sources existantes
+        tk.Label(form_frame, text="Source :", font=("Arial", 10, "bold")).grid(row=1, column=0, sticky="w", pady=8)
+        
+        # Récupérer les sources existantes
+        sources_existantes = set()
+        
+        # D'abord à partir des revenus existants
+        for revenu in self.gestionnaire.revenus:
+            sources_existantes.add(revenu.source)
+        
+        # Ensuite, ajouter les sources du fichier JSON
+        try:
+            with open("categories.json", "r", encoding="utf-8") as f:
+                categories_json = json.load(f)
+                for _, source in categories_json.get("revenus", {}).items():
+                    sources_existantes.add(source)
+        except (FileNotFoundError, json.JSONDecodeError):
+            pass
+        
+        # Convertir en liste triée
+        sources_liste = sorted(list(sources_existantes))
+        
+        # ComboBox pour les sources existantes + option de nouvelle source
+        combo_sources = ttk.Combobox(form_frame, width=25, font=("Arial", 10))
+        combo_sources['values'] = [""] + sources_liste + ["-- Nouvelle source --"]
+        combo_sources.grid(row=1, column=1, sticky="w", pady=8)
+        
+        # Entrée pour nouvelle source (initialement cachée)
+        entree_nouvelle_source = tk.Entry(form_frame, width=25, font=("Arial", 10))
+        entree_nouvelle_source.grid(row=2, column=1, sticky="w", pady=8)
+        entree_nouvelle_source.grid_remove()
+        
+        # Étiquette pour nouvelle source (initialement cachée)
+        label_nouvelle_source = tk.Label(form_frame, text="Nouvelle :", font=("Arial", 10))
+        label_nouvelle_source.grid(row=2, column=0, sticky="w", pady=8)
+        label_nouvelle_source.grid_remove()
+        
+        # Fonction pour gérer l'affichage du champ nouvelle source
+        def on_source_change(event):
+            if combo_sources.get() == "-- Nouvelle source --":
+                label_nouvelle_source.grid()
+                entree_nouvelle_source.grid()
+                entree_nouvelle_source.focus_set()
+            else:
+                label_nouvelle_source.grid_remove()
+                entree_nouvelle_source.grid_remove()
+        
+        combo_sources.bind("<<ComboboxSelected>>", on_source_change)
+        
+        # 3. Date avec calendrier
+        tk.Label(form_frame, text="Date :", font=("Arial", 10, "bold")).grid(row=3, column=0, sticky="w", pady=8)
+        
+        calendrier = Calendar(form_frame, selectmode='day', date_pattern='y-mm-dd',
+                            background='#f0f0f0', foreground='black', 
+                            selectbackground='#4a6984', selectforeground='white')
+        calendrier.grid(row=3, column=1, sticky="w", pady=8)
+        
+        # 4. Option de récurrence
+        tk.Label(form_frame, text="Récurrence :", font=("Arial", 10, "bold")).grid(row=4, column=0, sticky="w", pady=8)
+        
+        recurrence_options = ["Aucune", "Mensuelle", "Trimestrielle", "Annuelle"]
+        combo_recurrence = ttk.Combobox(form_frame, values=recurrence_options, width=15, font=("Arial", 10))
+        combo_recurrence.current(0)
+        combo_recurrence.grid(row=4, column=1, sticky="w", pady=8)
+        
+        # 5. Notes/Description
+        tk.Label(form_frame, text="Notes :", font=("Arial", 10, "bold")).grid(row=5, column=0, sticky="nw", pady=8)
+        
+        entree_notes = tk.Text(form_frame, width=25, height=3, font=("Arial", 10))
+        entree_notes.grid(row=5, column=1, sticky="w", pady=8)
+        
+        # Frame pour les boutons
+        boutons_frame = tk.Frame(main_frame)
+        boutons_frame.pack(pady=20, fill=tk.X)
         
         # Fonction pour valider l'entrée
         def valider():
             try:
-                montant = float(entree_montant.get())
-                source = entree_source.get()
-                date_str = calendrier.get_date()  # Récupérer la date sélectionnée
+                # Récupérer et valider les valeurs
+                try:
+                    montant = float(entree_montant.get().replace(',', '.'))
+                    if montant <= 0:
+                        raise ValueError("Le montant doit être supérieur à zéro.")
+                except ValueError as e:
+                    messagebox.showerror("Erreur", f"Montant invalide: {str(e)}")
+                    return
+                
+                # Récupérer la source
+                if combo_sources.get() == "-- Nouvelle source --":
+                    source = entree_nouvelle_source.get().strip()
+                    if not source:
+                        messagebox.showerror("Erreur", "Veuillez entrer la nouvelle source.")
+                        return
+                else:
+                    source = combo_sources.get().strip()
+                    if not source:
+                        messagebox.showerror("Erreur", "Veuillez sélectionner une source.")
+                        return
+                
+                # Récupérer la date
+                date_str = calendrier.get_date()
                 date = datetime.datetime.strptime(date_str, "%Y-%m-%d").date()
-
+                
+                # Récupérer les notes
+                notes = entree_notes.get("1.0", tk.END).strip()
+                
                 # Ajouter le revenu
-                self.gestionnaire.revenus.append(Revenu(montant, source, date))
+                from Revenu import Revenu
+                nouveau_revenu = Revenu(montant, source, date)
+                
+                # Ajouter les notes si le modèle de Revenu est étendu pour les prendre en charge
+                # (nécessiterait une modification du modèle Revenu)
+                # nouveau_revenu.notes = notes
+                
+                self.gestionnaire.revenus.append(nouveau_revenu)
                 self.gestionnaire.sauvegarder_revenus()
+                
+                # Gérer la récurrence si nécessaire
+                if combo_recurrence.get() != "Aucune":
+                    self._creer_revenus_recurrents(nouveau_revenu, combo_recurrence.get())
+                
                 self.mettre_a_jour_solde()
+                messagebox.showinfo("Succès", f"Revenu de {montant}€ ajouté depuis la source '{source}'.")
                 fenetre.destroy()
-            except ValueError:
-                messagebox.showerror("Erreur", "Veuillez entrer des valeurs valides.")
+                
+            except Exception as e:
+                messagebox.showerror("Erreur", f"Une erreur est survenue : {str(e)}")
 
-        # Bouton pour valider
-        bouton_valider = tk.Button(fenetre, text="Ajouter", command=valider)
-        bouton_valider.pack(pady=10)
+        # Boutons avec icônes et couleurs
+        bouton_valider = tk.Button(boutons_frame, text="Ajouter le revenu", command=valider, 
+                                bg="#2E7D32", fg="white", padx=15, pady=8, font=("Arial", 10, "bold"))
+        bouton_valider.pack(side=tk.LEFT, padx=5)
+        
+        bouton_annuler = tk.Button(boutons_frame, text="Annuler", command=fenetre.destroy, 
+                                bg="#f44336", fg="white", padx=15, pady=8, font=("Arial", 10))
+        bouton_annuler.pack(side=tk.LEFT, padx=5)
+        
+        # Focus sur le champ montant au démarrage
+        entree_montant.focus_set()
 
+    # Méthodes auxiliaires à ajouter pour gérer les transactions récurrentes
+
+    def _creer_depenses_recurrentes(self, depense_modele, recurrence):
+        """Crée des dépenses récurrentes basées sur un modèle de dépense initiale"""
+        date_base = depense_modele.date
+        nouvelle_date = None
+        
+        # Préparer les dates futures selon la récurrence
+        dates_futures = []
+        
+        if recurrence == "Mensuelle":
+            for i in range(1, 13):  # Créer pour les 12 prochains mois
+                mois = date_base.month + i
+                annee = date_base.year
+                while mois > 12:
+                    mois -= 12
+                    annee += 1
+                try:
+                    nouvelle_date = datetime.date(annee, mois, date_base.day)
+                    dates_futures.append(nouvelle_date)
+                except ValueError:
+                    # Gérer le cas du 29, 30, 31 si le mois n'a pas ces jours
+                    derniers_jours = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+                    # Ajuster pour les années bissextiles
+                    if annee % 4 == 0 and (annee % 100 != 0 or annee % 400 == 0):
+                        derniers_jours[1] = 29
+                    nouvelle_date = datetime.date(annee, mois, min(date_base.day, derniers_jours[mois-1]))
+                    dates_futures.append(nouvelle_date)
+        
+        elif recurrence == "Trimestrielle":
+            for i in range(1, 5):  # Créer pour les 4 prochains trimestres
+                mois = date_base.month + (i * 3)
+                annee = date_base.year
+                while mois > 12:
+                    mois -= 12
+                    annee += 1
+                try:
+                    nouvelle_date = datetime.date(annee, mois, date_base.day)
+                    dates_futures.append(nouvelle_date)
+                except ValueError:
+                    # Gérer le cas du 29, 30, 31 si le mois n'a pas ces jours
+                    derniers_jours = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+                    # Ajuster pour les années bissextiles
+                    if annee % 4 == 0 and (annee % 100 != 0 or annee % 400 == 0):
+                        derniers_jours[1] = 29
+                    nouvelle_date = datetime.date(annee, mois, min(date_base.day, derniers_jours[mois-1]))
+                    dates_futures.append(nouvelle_date)
+        
+        elif recurrence == "Annuelle":
+            for i in range(1, 4):  # Créer pour les 3 prochaines années
+                try:
+                    nouvelle_date = datetime.date(date_base.year + i, date_base.month, date_base.day)
+                    dates_futures.append(nouvelle_date)
+                except ValueError:
+                    # Gérer le cas du 29 février pour les années non bissextiles
+                    if date_base.month == 2 and date_base.day == 29:
+                        nouvelle_date = datetime.date(date_base.year + i, date_base.month, 28)
+                        dates_futures.append(nouvelle_date)
+        
+        # Créer les dépenses récurrentes
+        from Depense import Depense
+        for date_future in dates_futures:
+            nouvelle_depense = Depense(
+                montant=depense_modele.montant, 
+                categorie=depense_modele.categorie,
+                date=date_future
+            )
+            self.gestionnaire.depenses.append(nouvelle_depense)
+        
+        # Sauvegarder toutes les dépenses
+        self.gestionnaire.sauvegarder_depenses()
+        
+        # Informer l'utilisateur
+        messagebox.showinfo("Récurrence configurée", 
+                        f"{len(dates_futures)} dépenses récurrentes ont été créées.")
+
+    def _creer_revenus_recurrents(self, revenu_modele, recurrence):
+        """Crée des revenus récurrents basés sur un modèle de revenu initial"""
+        date_base = revenu_modele.date
+        nouvelle_date = None
+        
+        # Préparer les dates futures selon la récurrence
+        dates_futures = []
+        
+        if recurrence == "Mensuelle":
+            for i in range(1, 13):  # Créer pour les 12 prochains mois
+                mois = date_base.month + i
+                annee = date_base.year
+                while mois > 12:
+                    mois -= 12
+                    annee += 1
+                try:
+                    nouvelle_date = datetime.date(annee, mois, date_base.day)
+                    dates_futures.append(nouvelle_date)
+                except ValueError:
+                    # Gérer le cas du 29, 30, 31 si le mois n'a pas ces jours
+                    derniers_jours = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+                    # Ajuster pour les années bissextiles
+                    if annee % 4 == 0 and (annee % 100 != 0 or annee % 400 == 0):
+                        derniers_jours[1] = 29
+                    nouvelle_date = datetime.date(annee, mois, min(date_base.day, derniers_jours[mois-1]))
+                    dates_futures.append(nouvelle_date)
+        
+        elif recurrence == "Trimestrielle":
+            for i in range(1, 5):  # Créer pour les 4 prochains trimestres
+                mois = date_base.month + (i * 3)
+                annee = date_base.year
+                while mois > 12:
+                    mois -= 12
+                    annee += 1
+                try:
+                    nouvelle_date = datetime.date(annee, mois, date_base.day)
+                    dates_futures.append(nouvelle_date)
+                except ValueError:
+                    # Gérer le cas du 29, 30, 31 si le mois n'a pas ces jours
+                    derniers_jours = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+                    # Ajuster pour les années bissextiles
+                    if annee % 4 == 0 and (annee % 100 != 0 or annee % 400 == 0):
+                        derniers_jours[1] = 29
+                    nouvelle_date = datetime.date(annee, mois, min(date_base.day, derniers_jours[mois-1]))
+                    dates_futures.append(nouvelle_date)
+        
+        elif recurrence == "Annuelle":
+            for i in range(1, 4):  # Créer pour les 3 prochaines années
+                try:
+                    nouvelle_date = datetime.date(date_base.year + i, date_base.month, date_base.day)
+                    dates_futures.append(nouvelle_date)
+                except ValueError:
+                    # Gérer le cas du 29 février pour les années non bissextiles
+                    if date_base.month == 2 and date_base.day == 29:
+                        nouvelle_date = datetime.date(date_base.year + i, date_base.month, 28)
+                        dates_futures.append(nouvelle_date)
+        
+        # Créer les revenus récurrents
+        from Revenu import Revenu
+        for date_future in dates_futures:
+            nouveau_revenu = Revenu(
+                montant=revenu_modele.montant, 
+                source=revenu_modele.source,
+                date=date_future
+            )
+            self.gestionnaire.revenus.append(nouveau_revenu)
+        
+        # Sauvegarder tous les revenus
+        self.gestionnaire.sauvegarder_revenus()
+        
+        # Informer l'utilisateur
+        messagebox.showinfo("Récurrence configurée", 
+                        f"{len(dates_futures)} revenus récurrents ont été créés.")
     def afficher_depenses(self):
         # Créer une nouvelle fenêtre
         fenetre = tk.Toplevel(self.root)
@@ -344,3 +759,8 @@ class GestionFinancesApp:
         canvas = FigureCanvasTkAgg(figure, master=fenetre)
         canvas.draw()
         canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+    def ouvrir_integration_bancaire(self):
+        """Ouvre l'interface d'intégration bancaire"""
+        ui_integration = IntegrationBancaireUI(self.root, self.gestionnaire)
+        ui_integration.afficher_menu_integration()

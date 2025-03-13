@@ -1,1 +1,2 @@
 id,nom,categorie,quantite,prix_unitaire,seuil_alerte,date_peremption,fournisseur,code_produit,emplacement
+1,test,test,100,10.0,25,2025-03-28,test,test,test

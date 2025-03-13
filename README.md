@@ -13,6 +13,9 @@ Cette application Python permet de gérer vos finances personnelles et votre inv
 - Analyse des tendances financières
 - Prévisions budgétaires
 - Recherche de transactions (dépenses/revenus)
+- **NOUVEAU** : Gestion des transactions récurrentes (mensuelle, trimestrielle, annuelle)
+- **NOUVEAU** : Système de catégorisation avancé avec suggestions intelligentes
+- **NOUVEAU** : Intégration avec les APIs bancaires pour synchronisation automatique
 
 ### Module de Gestion de Stock
 - Suivi complet des articles en stock
@@ -33,6 +36,8 @@ L'application nécessite les packages Python suivants :
 - tkcalendar
 - datetime
 - numpy
+- **NOUVEAU** : requests (pour les APIs bancaires)
+- **NOUVEAU** : keyring (pour le stockage sécurisé des identifiants)
 
 ## Installation
 
@@ -58,17 +63,33 @@ python main.py
 1. **Ajouter une dépense**
    - Cliquez sur "Ajouter Dépense"
    - Remplissez le montant, la catégorie et sélectionnez la date
+   - **NOUVEAU** : Définissez une récurrence si nécessaire (mensuelle, trimestrielle, annuelle)
+   - **NOUVEAU** : Ajoutez des notes pour plus de détails
    - Validez en cliquant sur "Ajouter"
 
 2. **Ajouter un revenu**
    - Cliquez sur "Ajouter Revenu"
    - Remplissez le montant, la source et sélectionnez la date
+   - **NOUVEAU** : Définissez une récurrence si nécessaire
    - Validez en cliquant sur "Ajouter"
 
 3. **Visualiser les graphiques**
    - Cliquez sur "Graphiques" pour afficher les visualisations
    - Cliquez sur "Tendances" pour voir l'évolution des revenus et dépenses
    - Cliquez sur "Prévisions" pour accéder aux prévisions budgétaires
+
+4. **NOUVEAU : Synchronisation bancaire**
+   - Cliquez sur "Synchroniser Banque"
+   - Configurez vos identifiants API pour votre banque
+   - Suivez le processus d'authentification
+   - Sélectionnez votre compte et la période à synchroniser
+   - Les transactions sont automatiquement importées et catégorisées
+
+### Gestion des catégories
+1. **NOUVEAU : Utilisation du fichier categorie.json**
+   - L'application utilise un fichier JSON externe pour gérer les catégories
+   - Vous pouvez éditer ce fichier pour personnaliser vos catégories
+   - Format : catégories de dépenses et de revenus avec mots-clés associés
 
 ### Gestion de Stock
 1. **Ajouter un article**
@@ -86,6 +107,36 @@ python main.py
    - Cliquez sur "Rapports" pour accéder aux statistiques de stock
    - Visualisez les articles en alerte et en rupture
    - Consultez l'historique des mouvements
+
+## Banques supportées
+
+L'application prend en charge l'intégration avec les banques suivantes :
+- Monabanq
+- Boursorama
+- Crédit Agricole
+- BNP Paribas
+- LCL
+
+Pour configurer l'accès à l'API de votre banque, vous devez :
+1. Créer un compte développeur sur le portail de votre banque
+2. Enregistrer une application pour obtenir un Client ID et un Client Secret
+3. Configurer l'URL de redirection : http://localhost:8080/callback
+
+## Personnalisation des catégories
+
+Vous pouvez personnaliser vos catégories en modifiant le fichier `categorie.json` :
+```json
+{
+    "depenses": {
+        "MOT_CLE1": "categorie1",
+        "MOT_CLE2": "categorie2"
+    },
+    "revenus": {
+        "MOT_CLE3": "source1",
+        "MOT_CLE4": "source2"
+    }
+}
+```
 
 ## Support
 
