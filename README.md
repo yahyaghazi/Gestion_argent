@@ -141,7 +141,7 @@ Vous pouvez personnaliser vos catégories en modifiant le fichier `categorie.jso
 ## Support
 
 Pour toute question ou assistance, veuillez nous contacter à l'adresse suivante :
-support@gestion-finances-stock.com
+kata.king.78@gmail.com
 
 ## Licence
 
