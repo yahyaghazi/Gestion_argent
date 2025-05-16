@@ -2,9 +2,9 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from GestionStockApp import GestionStockApp
 from GestionFinancesApp import GestionFinancesApp
+from ExportImportModule import ExportImportModule
 
 import sys
-import os
 
 class ApplicationPrincipale:
     def __init__(self, root):
@@ -200,14 +200,14 @@ class ApplicationPrincipale:
     
     def export_data(self):
         """Exporte les données de l'application"""
-        # À implémenter
-        messagebox.showinfo("Export", "Fonctionnalité d'export à implémenter")
-    
+        export_module = ExportImportModule(self)
+        export_module.exporter_donnees()
+        
     def import_data(self):
         """Importe des données dans l'application"""
-        # À implémenter
-        messagebox.showinfo("Import", "Fonctionnalité d'import à implémenter")
-    
+        import_module = ExportImportModule(self)
+        import_module.importer_donnees()
+
     def show_documentation(self):
         """Affiche la documentation de l'application"""
         # À implémenter

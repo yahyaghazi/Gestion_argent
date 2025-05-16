@@ -1,22 +1,23 @@
 RAPPORT FINANCIER
 =================
 
-Date du rapport: 2025-03-14
+Date du rapport: 2025-03-15
 
-Solde global: 9246.00€
+Solde global: 11716.00€
 
-REVENUS TOTAUX: 10000.00€
+REVENUS TOTAUX: 12600.00€
 ------------------------------
-assa: 9800.00€ (98.0%)
-caf: 200.00€ (2.0%)
+assa: 9800.00€ (77.8%)
+caf: 2800.00€ (22.2%)
 
-DÉPENSES TOTALES: 754.00€
+DÉPENSES TOTALES: 884.00€
 ------------------------------
-loyer: 520.00€ (69.0%)
-abonnements: 234.00€ (31.0%)
+loyer: 520.00€ (58.8%)
+abonnements: 234.00€ (26.5%)
+energie: 130.00€ (14.7%)
 
 PRÉVISIONS (3 prochains mois)
 ------------------------------
-2026-04: Revenus prévus = 700.00€, Dépenses prévues = 18.00€, Solde projeté = 9928.00€
-2026-05: Revenus prévus = 700.00€, Dépenses prévues = 18.00€, Solde projeté = 10610.00€
-2026-06: Revenus prévus = 700.00€, Dépenses prévues = 18.00€, Solde projeté = 11292.00€
+2026-04: Revenus prévus = 900.00€, Dépenses prévues = 28.00€, Solde projeté = 12588.00€
+2026-05: Revenus prévus = 900.00€, Dépenses prévues = 28.00€, Solde projeté = 13460.00€
+2026-06: Revenus prévus = 900.00€, Dépenses prévues = 28.00€, Solde projeté = 14332.00€
