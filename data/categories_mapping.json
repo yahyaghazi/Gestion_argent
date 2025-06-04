@@ -1,0 +1,25 @@
+{
+    "depenses": {
+        "LOYER": "loyer",
+        "EDF": "energie",
+        "ENGIE": "energie",
+        "TOTAL ENERGIES": "energie",
+        "CARREFOUR": "alimentation",
+        "AUCHAN": "alimentation",
+        "LECLERC": "alimentation",
+        "UBER EATS": "restaurants",
+        "DELIVEROO": "restaurants",
+        "SNCF": "transport",
+        "AMAZON": "shopping",
+        "NETFLIX": "abonnements",
+        "SPOTIFY": "abonnements",
+        "ASSURANCE": "assurance"
+    },
+    "revenus": {
+        "SALAIRE": "salaire",
+        "VIREMENT": "divers",
+        "REMBOURSEMENT": "remboursement",
+        "CAF": "caf",
+        "POLE EMPLOI": "pole_emploi"
+    }
+}

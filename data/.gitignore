@@ -1,0 +1,27 @@
+# Ignorer tous les fichiers CSV (données personnelles)
+*.csv
+
+# Ignorer tous les fichiers de transactions importées
+transactions_importees.json
+
+# Ne pas ignorer les fichiers d'exemple ou les modèles vides
+!*_example.csv
+!*_template.csv
+
+# Ignorer les sauvegardes et fichiers temporaires
+*.bak
+*.tmp
+*.old
+*~
+
+# Ignorer les fichiers de sauvegarde automatique
+*.backup
+*.save
+
+# Ignorer les fichiers de rapport générés
+rapport_*.txt
+rapport_*.pdf
+*rapport_financier*
+
+# Ne pas ignorer le fichier de configuration des catégories
+!categories.json
