@@ -1,5 +1,23 @@
+import datetime
+import tkinter as tk
+from tkinter import ttk, messagebox
+from app.stock.views.article_ui import ArticleUI
+from app.stock.views.transaction_ui import TransactionUI
+from app.stock.views.rapport_ui import RapportUI
+from app.stock.models.article import Article
 
-def creer_interface_stock(self):
+class ApplicationPrincipale:
+    """
+    Classe principale de l'application de gestion financière et de stock.
+    """
+    def __init__(self, root, gestionnaire_financier, gestionnaire_stock):
+        self.root = root
+        self.gestionnaire_financier = gestionnaire_financier
+        self.gestionnaire_stock = gestionnaire_stock
+        # Initialisation des frames et des interfaces
+        # ...
+
+    def creer_interface_stock(self):
         """
         Crée l'interface pour le module de gestion de stock.
         """
@@ -100,66 +118,66 @@ def creer_interface_stock(self):
         self.charger_articles()
         self.mettre_a_jour_statistiques()
     
-def initialiser_tableau_de_bord(self):
-    """
-    Initialise le tableau de bord avec les indicateurs clés des deux modules.
-    """
-    # Titre
-    tk.Label(self.dashboard_frame, text="Tableau de Bord", font=("Arial", 16, "bold")).pack(pady=10)
-    
-    # Container principal
-    main_container = tk.Frame(self.dashboard_frame)
-    main_container.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
-    
-    # Section Finances
-    finances_section = tk.LabelFrame(main_container, text="Finances", padx=10, pady=10)
-    finances_section.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
-    
-    self.lbl_solde = tk.Label(finances_section, text="Solde Global: 0.00€", font=("Arial", 12))
-    self.lbl_solde.pack(anchor=tk.W, pady=5)
-    
-    self.lbl_depenses = tk.Label(finances_section, text="Dépenses du mois: 0.00€", font=("Arial", 12))
-    self.lbl_depenses.pack(anchor=tk.W, pady=5)
-    
-    self.lbl_revenus = tk.Label(finances_section, text="Revenus du mois: 0.00€", font=("Arial", 12))
-    self.lbl_revenus.pack(anchor=tk.W, pady=5)
-    
-    # Section Stock
-    stock_section = tk.LabelFrame(main_container, text="Stock", padx=10, pady=10)
-    stock_section.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=5, pady=5)
-    
-    self.lbl_articles = tk.Label(stock_section, text="Articles en stock: 0", font=("Arial", 12))
-    self.lbl_articles.pack(anchor=tk.W, pady=5)
-    
-    self.lbl_valeur = tk.Label(stock_section, text="Valeur totale: 0.00€", font=("Arial", 12))
-    self.lbl_valeur.pack(anchor=tk.W, pady=5)
-    
-    self.lbl_alertes = tk.Label(stock_section, text="Articles en alerte: 0", font=("Arial", 12))
-    self.lbl_alertes.pack(anchor=tk.W, pady=5)
-    
-    # Boutons d'action rapide
-    actions_frame = tk.Frame(self.dashboard_frame)
-    actions_frame.pack(fill=tk.X, padx=20, pady=10)
-    
-    tk.Button(actions_frame, text="Ajouter Dépense", 
-              command=lambda: self.changer_onglet_et_action("finances", "depense"), 
-              bg="#ff9999", width=15).pack(side=tk.LEFT, padx=5)
-    
-    tk.Button(actions_frame, text="Ajouter Revenu", 
-              command=lambda: self.changer_onglet_et_action("finances", "revenu"), 
-              bg="#99ff99", width=15).pack(side=tk.LEFT, padx=5)
-    
-    tk.Button(actions_frame, text="Ajouter Article", 
-              command=lambda: self.changer_onglet_et_action("stock", "article"), 
-              bg="#97DEFF", width=15).pack(side=tk.LEFT, padx=5)
-    
-    tk.Button(actions_frame, text="Entrée Stock", 
-              command=lambda: self.changer_onglet_et_action("stock", "entree"), 
-              bg="#C1F2B0", width=15).pack(side=tk.LEFT, padx=5)
-    
-    # Actualiser les données du tableau de bord
-    self.actualiser_tableau_de_bord()
-    
+    def initialiser_tableau_de_bord(self):
+        """
+        Initialise le tableau de bord avec les indicateurs clés des deux modules.
+        """
+        # Titre
+        tk.Label(self.dashboard_frame, text="Tableau de Bord", font=("Arial", 16, "bold")).pack(pady=10)
+        
+        # Container principal
+        main_container = tk.Frame(self.dashboard_frame)
+        main_container.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+        
+        # Section Finances
+        finances_section = tk.LabelFrame(main_container, text="Finances", padx=10, pady=10)
+        finances_section.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
+        
+        self.lbl_solde = tk.Label(finances_section, text="Solde Global: 0.00€", font=("Arial", 12))
+        self.lbl_solde.pack(anchor=tk.W, pady=5)
+        
+        self.lbl_depenses = tk.Label(finances_section, text="Dépenses du mois: 0.00€", font=("Arial", 12))
+        self.lbl_depenses.pack(anchor=tk.W, pady=5)
+        
+        self.lbl_revenus = tk.Label(finances_section, text="Revenus du mois: 0.00€", font=("Arial", 12))
+        self.lbl_revenus.pack(anchor=tk.W, pady=5)
+        
+        # Section Stock
+        stock_section = tk.LabelFrame(main_container, text="Stock", padx=10, pady=10)
+        stock_section.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=5, pady=5)
+        
+        self.lbl_articles = tk.Label(stock_section, text="Articles en stock: 0", font=("Arial", 12))
+        self.lbl_articles.pack(anchor=tk.W, pady=5)
+        
+        self.lbl_valeur = tk.Label(stock_section, text="Valeur totale: 0.00€", font=("Arial", 12))
+        self.lbl_valeur.pack(anchor=tk.W, pady=5)
+        
+        self.lbl_alertes = tk.Label(stock_section, text="Articles en alerte: 0", font=("Arial", 12))
+        self.lbl_alertes.pack(anchor=tk.W, pady=5)
+        
+        # Boutons d'action rapide
+        actions_frame = tk.Frame(self.dashboard_frame)
+        actions_frame.pack(fill=tk.X, padx=20, pady=10)
+        
+        tk.Button(actions_frame, text="Ajouter Dépense", 
+                  command=lambda: self.changer_onglet_et_action("finances", "depense"), 
+                  bg="#ff9999", width=15).pack(side=tk.LEFT, padx=5)
+        
+        tk.Button(actions_frame, text="Ajouter Revenu", 
+                  command=lambda: self.changer_onglet_et_action("finances", "revenu"), 
+                  bg="#99ff99", width=15).pack(side=tk.LEFT, padx=5)
+        
+        tk.Button(actions_frame, text="Ajouter Article", 
+                  command=lambda: self.changer_onglet_et_action("stock", "article"), 
+                  bg="#97DEFF", width=15).pack(side=tk.LEFT, padx=5)
+        
+        tk.Button(actions_frame, text="Entrée Stock", 
+                  command=lambda: self.changer_onglet_et_action("stock", "entree"), 
+                  bg="#C1F2B0", width=15).pack(side=tk.LEFT, padx=5)
+        
+        # Actualiser les données du tableau de bord
+        self.actualiser_tableau_de_bord()
+        
     def actualiser_tableau_de_bord(self):
         """
         Actualise les données du tableau de bord.
@@ -417,83 +435,4 @@ def initialiser_tableau_de_bord(self):
                 f"{valeur:.2f}€",
                 etat_alerte,
                 article.emplacement
-            ))#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-"""
-Interface utilisateur principale de l'application de Gestion Financière et de Stock.
-Ce module définit la classe ApplicationPrincipale qui intègre les modules de finances et de stock.
-"""
-
-import sys
-import tkinter as tk
-from tkinter import ttk, messagebox
-
-from app.core.config import APP_CONFIG
-from app.finance.views.finance_app import GestionFinancesApp
-from app.stock.views.article_ui import ArticleUI
-from app.stock.views.transaction_ui import TransactionUI
-from app.stock.views.rapport_ui import RapportUI
-from app.stock.controllers.gestionnaire_stock import GestionnaireStock
-from app.finance.controllers.gestionnaire_financier import GestionnaireFinancier
-
-class ApplicationPrincipale:
-    """
-    Classe principale de l'application avec interface à onglets.
-    Intègre les modules de gestion financière et de gestion de stock.
-    
-    Attributes:
-        root (tk.Tk): Fenêtre principale de l'application.
-        notebook (ttk.Notebook): Gestionnaire d'onglets.
-        finances_app (GestionFinancesApp): Application de gestion financière.
-        stock_app (GestionStockApp): Application de gestion de stock.
-    """
-    
-    def __init__(self, root: tk.Tk):
-        """
-        Initialise l'application principale avec interface à onglets.
-        
-        Args:
-            root (tk.Tk): Fenêtre principale de l'application.
-        """
-        self.root = root
-        self.root.title(APP_CONFIG["app_title"])
-        
-        # Création du menu principal
-        self.creer_menu()
-        
-        # Création du notebook (gestionnaire d'onglets)
-        self.notebook = ttk.Notebook(self.root)
-        self.notebook.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-        
-        # Frame pour le tableau de bord
-        self.dashboard_frame = tk.Frame(self.notebook)
-        self.notebook.add(self.dashboard_frame, text="Tableau de Bord")
-
-        # Frame pour le module de finances
-        self.finances_frame = tk.Frame(self.notebook)
-        self.notebook.add(self.finances_frame, text="Gestion Financière")
-        
-        # Frame pour le module de stock
-        self.stock_frame = tk.Frame(self.notebook)
-        self.notebook.add(self.stock_frame, text="Gestion de Stock")
-                
-        # Initialisation des gestionnaires
-        self.gestionnaire_financier = GestionnaireFinancier()
-        self.gestionnaire_stock = GestionnaireStock()
-        
-        # Initialisation des modules
-        self.finances_app = GestionFinancesApp(self.finances_frame, self.gestionnaire_financier)
-        
-        # Initialisation du module de stock
-        self.creer_interface_stock()
-        
-        # Initialisation du tableau de bord
-        self.initialiser_tableau_de_bord()
-        
-        # Liaison des événements de changement d'onglet
-        self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_change)
-        
-        # Barre de statut
-        self.barre_statut = tk.Label(self.root, text="Prêt", bd=1, relief=tk.SUNKEN, anchor=tk.W)
-        self.barre_statut.pack(side=tk.BOTTOM, fill=tk.X)
+            ))

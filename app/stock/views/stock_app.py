@@ -1,9 +1,17 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+Interface utilisateur principale pour la gestion de stock.
+"""
+
 import tkinter as tk
 from tkinter import ttk, messagebox
-from GestionnaireStock import GestionnaireStock
-from ui.ArticleUI import ArticleUI
-from ui.TransactionUI import TransactionUI
-from ui.RapportUI import RapportUI
+from app.stock.controllers.gestionnaire_stock import GestionnaireStock
+from app.stock.views.article_ui import ArticleUI
+from app.stock.models.article import ArticleUI
+from app.stock.views.transaction_ui import TransactionUI
+from app.stock.views.rapport_ui import RapportUI
 
 class GestionStockApp:
     def __init__(self, parent_frame, gestionnaire_stock=None):

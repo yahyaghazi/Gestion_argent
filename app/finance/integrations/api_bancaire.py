@@ -319,7 +319,7 @@ class SynchronisationBancaire:
                     categorie = self.guess_category("DEBIT", transaction["description"])
                     
                     # Créer et ajouter la dépense
-                    from Depense import Depense
+                    from app.finance.models.depense from app.finance.models.depense import Depense
                     nouvelle_depense = Depense(
                         montant=montant,
                         categorie=categorie,
@@ -334,7 +334,7 @@ class SynchronisationBancaire:
                     source = self.guess_category("CREDIT", transaction["description"])
                     
                     # Créer et ajouter le revenu
-                    from Revenu import Revenu
+                    from app.finance.models.revenu from app.finance.models.revenu import Revenu
                     nouveau_revenu = Revenu(
                         montant=montant,
                         source=source,

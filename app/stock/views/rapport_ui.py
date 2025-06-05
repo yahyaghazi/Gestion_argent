@@ -178,7 +178,7 @@ class RapportUI:
             
             # Ajouter les transactions (ordre chronologique inverse)
             for transaction in sorted(transactions_recentes, key=lambda t: t.date, reverse=True):
-                from app.stock.models.transaction import TransactionStock
+                from app.stock.models.transaction from app.stock.models.transaction import TransactionStock
                 
                 type_trans = {
                     TransactionStock.TYPE_ENTREE: "Entrée",

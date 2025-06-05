@@ -16,8 +16,8 @@ from typing import Dict, List, Optional, Any, Tuple
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 
-from app.finance.models.depense import Depense
-from app.finance.models.revenu import Revenu
+from app.finance.models.depense from app.finance.models.depense import Depense
+from app.finance.models.revenu from app.finance.models.revenu import Revenu
 from app.core.config import DEPENSES_CSV, REVENUS_CSV, CATEGORIES_JSON
 from app.core.utils import create_csv_if_not_exists, load_json_file
 

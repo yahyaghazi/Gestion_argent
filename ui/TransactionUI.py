@@ -1,6 +1,13 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+Interface utilisateur pour la gestion des transactions de stock.
+"""
+
 import tkinter as tk
 from tkinter import ttk, messagebox, simpledialog
-from TransactionStock import TransactionStock
+from app.stock.models.transaction import TransactionStock
 
 class TransactionUI:
     def __init__(self, app, parent_frame, gestionnaire):

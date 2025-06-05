@@ -1,8 +1,8 @@
 import csv
 import datetime
 import os
-from Article import Article
-from TransactionStock import TransactionStock
+from app.stock.models.article from app.stock.models.article import Article
+from app.stock.models.transaction from app.stock.models.transaction import TransactionStock
 
 class GestionnaireStock:
     def __init__(self, fichier_articles="Articles.csv", fichier_transactions="TransactionsStock.csv"):
