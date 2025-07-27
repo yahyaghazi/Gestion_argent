@@ -13,8 +13,8 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import json
 
-from app.finance.models.depense from app.finance.models.depense import Depense
-from app.finance.models.revenu from app.finance.models.revenu import Revenu
+from app.finance.models.depense import Depense
+from app.finance.models.revenu import Revenu
 from app.core.config import CATEGORIES_JSON
 
 class GestionFinancesApp:

@@ -11,8 +11,8 @@ import datetime
 import os
 from typing import Dict, List, Optional, Any, Tuple
 
-from app.stock.models.article from app.stock.models.article import Article
-from app.stock.models.transaction from app.stock.models.transaction import TransactionStock
+from app.stock.models.article import Article
+from app.stock.models.transaction import TransactionStock
 from app.core.config import ARTICLES_CSV, TRANSACTIONS_STOCK_CSV
 from app.core.utils import create_csv_if_not_exists
 

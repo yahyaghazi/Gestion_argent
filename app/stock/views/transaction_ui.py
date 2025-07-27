@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, simpledialog
-from app.stock.models.transaction from app.stock.models.transaction import TransactionStock
+from app.stock.models.transaction import TransactionStock
 
 class TransactionUI:
     def __init__(self, app, parent_frame, gestionnaire):

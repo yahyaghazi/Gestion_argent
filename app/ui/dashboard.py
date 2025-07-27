@@ -6,6 +6,7 @@ from app.stock.views.transaction_ui import TransactionUI
 from app.stock.views.rapport_ui import RapportUI
 from app.stock.models.article import Article
 
+
 class ApplicationPrincipale:
     """
     Classe principale de l'application de gestion financière et de stock.
