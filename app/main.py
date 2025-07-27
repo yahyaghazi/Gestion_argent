@@ -15,6 +15,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 try:
     from app.ui.dashboard import ApplicationPrincipale
+    from app.finance.controllers.gestionnaire_financier import GestionnaireFinancier
+    from app.stock.controllers.gestionnaire_stock import GestionnaireStock
     from app.core.config import APP_CONFIG
 except ImportError as e:
     print(f"Erreur d'importation: {e}")
@@ -42,8 +44,14 @@ def main():
         y = (root.winfo_screenheight() // 2) - (height // 2)
         root.geometry(f"{width}x{height}+{x}+{y}")
         
-        # Créer l'application
-        app = ApplicationPrincipale(root)
+        # Initialiser les gestionnaires
+        print("Initialisation des gestionnaires...")
+        gestionnaire_financier = GestionnaireFinancier()
+        gestionnaire_stock = GestionnaireStock()
+        print("Gestionnaires initialisés avec succès.")
+        
+        # Créer l'application avec les gestionnaires
+        app = ApplicationPrincipale(root, gestionnaire_financier, gestionnaire_stock)
         
         # Gérer la fermeture de la fenêtre
         def on_closing():
@@ -52,12 +60,17 @@ def main():
         
         root.protocol("WM_DELETE_WINDOW", on_closing)
         
+        print("Lancement de l'interface...")
         # Lancer la boucle principale
         root.mainloop()
         
     except Exception as e:
-        messagebox.showerror("Erreur", f"Une erreur est survenue lors du lancement de l'application:\n{str(e)}")
-        print(f"Une erreur est survenue lors du lancement de l'application:\n{str(e)}")
+        error_msg = f"Une erreur est survenue lors du lancement de l'application:\n{str(e)}"
+        print(error_msg)
+        try:
+            messagebox.showerror("Erreur", error_msg)
+        except:
+            pass  # Si tkinter n'est pas disponible pour afficher la messagebox
         sys.exit(1)
 
 if __name__ == "__main__":

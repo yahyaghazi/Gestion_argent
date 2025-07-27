@@ -9,7 +9,6 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from app.stock.controllers.gestionnaire_stock import GestionnaireStock
 from app.stock.views.article_ui import ArticleUI
-from app.stock.models.article import ArticleUI
 from app.stock.views.transaction_ui import TransactionUI
 from app.stock.views.rapport_ui import RapportUI
 
@@ -167,7 +166,7 @@ class GestionStockApp:
                 f"{article.prix_unitaire:.2f}€",
                 f"{valeur:.2f}€",
                 etat_alerte,
-                article.emplacement
+                article.emplacement or ""
             ))
     
     def mettre_a_jour_statistiques(self):
@@ -214,5 +213,5 @@ class GestionStockApp:
                 f"{article.prix_unitaire:.2f}€",
                 f"{valeur:.2f}€",
                 etat_alerte,
-                article.emplacement
+                article.emplacement or ""
             ))

@@ -1,14 +1,22 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+Interface utilisateur principale (tableau de bord) pour l'application.
+"""
+
 import sys
 import datetime
 import tkinter as tk
 from tkinter import ttk, messagebox
+
 from app.core.config import APP_CONFIG
 from app.finance.controllers.gestionnaire_financier import GestionnaireFinancier
 from app.stock.controllers.gestionnaire_stock import GestionnaireStock
+from app.finance.views.finance_app import GestionFinancesApp
 from app.stock.views.article_ui import ArticleUI
 from app.stock.views.transaction_ui import TransactionUI
 from app.stock.views.rapport_ui import RapportUI
-from app.stock.models.article import Article
 
 
 class ApplicationPrincipale:
@@ -16,16 +24,68 @@ class ApplicationPrincipale:
     Classe principale de l'application de gestion financière et de stock.
     """
     def __init__(self, root, gestionnaire_financier, gestionnaire_stock):
+        """
+        Initialise l'application principale.
+        
+        Args:
+            root (tk.Tk): Fenêtre principale
+            gestionnaire_financier (GestionnaireFinancier): Gestionnaire financier
+            gestionnaire_stock (GestionnaireStock): Gestionnaire de stock
+        """
         self.root = root
         self.gestionnaire_financier = gestionnaire_financier
         self.gestionnaire_stock = gestionnaire_stock
-        # Initialisation des frames et des interfaces
-        # ...
+        
+        # Créer l'interface utilisateur
+        self.creer_interface()
+        
+        # Créer le menu
+        self.creer_menu()
+        
+        # Créer la barre de statut
+        self.creer_barre_statut()
+        
+        print("Interface principale créée avec succès.")
+
+    def creer_interface(self):
+        """Crée l'interface utilisateur principale avec onglets."""
+        # Créer le notebook principal
+        self.notebook = ttk.Notebook(self.root)
+        self.notebook.pack(fill=tk.BOTH, expand=True)
+        
+        # Créer les onglets
+        self.creer_onglet_dashboard()
+        self.creer_onglet_finances()
+        self.creer_onglet_stock()
+        
+        # Lier l'événement de changement d'onglet
+        self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_change)
+
+    def creer_onglet_dashboard(self):
+        """Crée l'onglet du tableau de bord."""
+        self.dashboard_frame = tk.Frame(self.notebook)
+        self.notebook.add(self.dashboard_frame, text="Tableau de Bord")
+        
+        self.initialiser_tableau_de_bord()
+
+    def creer_onglet_finances(self):
+        """Crée l'onglet de gestion financière."""
+        self.finances_frame = tk.Frame(self.notebook)
+        self.notebook.add(self.finances_frame, text="Finances")
+        
+        # Initialiser l'interface de gestion financière
+        self.finances_app = GestionFinancesApp(self.finances_frame, self.gestionnaire_financier)
+
+    def creer_onglet_stock(self):
+        """Crée l'onglet de gestion de stock."""
+        self.stock_frame = tk.Frame(self.notebook)
+        self.notebook.add(self.stock_frame, text="Stock")
+        
+        # Initialiser l'interface de gestion de stock
+        self.creer_interface_stock()
 
     def creer_interface_stock(self):
-        """
-        Crée l'interface pour le module de gestion de stock.
-        """
+        """Crée l'interface pour le module de gestion de stock."""
         # Initialisation des interfaces utilisateur de stock
         self.article_ui = ArticleUI(self, self.stock_frame, self.gestionnaire_stock)
         self.transaction_ui = TransactionUI(self, self.stock_frame, self.gestionnaire_stock)
@@ -124,9 +184,7 @@ class ApplicationPrincipale:
         self.mettre_a_jour_statistiques()
     
     def initialiser_tableau_de_bord(self):
-        """
-        Initialise le tableau de bord avec les indicateurs clés des deux modules.
-        """
+        """Initialise le tableau de bord avec les indicateurs clés des deux modules."""
         # Titre
         tk.Label(self.dashboard_frame, text="Tableau de Bord", font=("Arial", 16, "bold")).pack(pady=10)
         
@@ -184,9 +242,7 @@ class ApplicationPrincipale:
         self.actualiser_tableau_de_bord()
         
     def actualiser_tableau_de_bord(self):
-        """
-        Actualise les données du tableau de bord.
-        """
+        """Actualise les données du tableau de bord."""
         try:
             # Données financières
             solde = self.gestionnaire_financier.calculer_solde()
@@ -213,50 +269,44 @@ class ApplicationPrincipale:
             self.lbl_alertes.config(text=f"Articles en alerte: {nb_alertes}")
             
         except Exception as e:
-            messagebox.showerror("Erreur", f"Erreur lors de l'actualisation du tableau de bord: {str(e)}")
+            print(f"Erreur lors de l'actualisation du tableau de bord: {str(e)}")
     
     def on_tab_change(self, event):
-        """
-        Gère les événements liés au changement d'onglet.
-        
-        Args:
-            event: Événement Tkinter.
-        """
-        tab_id = self.notebook.index("current")
-        tab_name = self.notebook.tab(tab_id, "text")
-        
-        # Mettre à jour la barre de statut
-        self.barre_statut.config(text=f"Module: {tab_name}")
-        
-        # Si l'onglet du tableau de bord est sélectionné, actualiser les données
-        if tab_name == "Tableau de Bord":
-            self.actualiser_tableau_de_bord()
+        """Gère les événements liés au changement d'onglet."""
+        try:
+            tab_id = self.notebook.index("current")
+            tab_name = self.notebook.tab(tab_id, "text")
+            
+            # Mettre à jour la barre de statut
+            if hasattr(self, 'barre_statut'):
+                self.barre_statut.config(text=f"Module: {tab_name}")
+            
+            # Si l'onglet du tableau de bord est sélectionné, actualiser les données
+            if tab_name == "Tableau de Bord":
+                self.actualiser_tableau_de_bord()
+        except Exception as e:
+            print(f"Erreur lors du changement d'onglet: {str(e)}")
     
     def changer_onglet_et_action(self, module, action):
-        """
-        Change d'onglet et déclenche une action spécifique.
-        
-        Args:
-            module (str): Module à activer ('finances' ou 'stock').
-            action (str): Action à déclencher.
-        """
-        if module == "finances":
-            self.notebook.select(1)  # Onglet finances
-            if action == "depense":
-                self.finances_app.ajouter_depense()
-            elif action == "revenu":
-                self.finances_app.ajouter_revenu()
-        elif module == "stock":
-            self.notebook.select(2)  # Onglet stock
-            if action == "article":
-                self.article_ui.ajouter_article()
-            elif action == "entree":
-                self.transaction_ui.entrer_stock()
+        """Change d'onglet et déclenche une action spécifique."""
+        try:
+            if module == "finances":
+                self.notebook.select(1)  # Onglet finances
+                if action == "depense":
+                    self.finances_app.ajouter_depense()
+                elif action == "revenu":
+                    self.finances_app.ajouter_revenu()
+            elif module == "stock":
+                self.notebook.select(2)  # Onglet stock
+                if action == "article":
+                    self.article_ui.ajouter_article()
+                elif action == "entree":
+                    self.transaction_ui.entrer_stock()
+        except Exception as e:
+            print(f"Erreur lors du changement d'onglet: {str(e)}")
     
     def creer_menu(self):
-        """
-        Crée le menu principal de l'application.
-        """
+        """Crée le menu principal de l'application."""
         menu_bar = tk.Menu(self.root)
         
         # Menu Fichier
@@ -274,7 +324,7 @@ class ApplicationPrincipale:
         finance_menu.add_command(label="Ajouter Revenu", 
                                 command=lambda: self.changer_onglet_et_action("finances", "revenu"))
         finance_menu.add_command(label="Afficher Graphiques", 
-                                command=self.finances_app.afficher_graphiques)
+                                command=lambda: self.finances_app.afficher_graphiques() if hasattr(self, 'finances_app') else None)
         menu_bar.add_cascade(label="Finances", menu=finance_menu)
         
         # Menu Stock
@@ -284,7 +334,7 @@ class ApplicationPrincipale:
         stock_menu.add_command(label="Entrée Stock", 
                               command=lambda: self.changer_onglet_et_action("stock", "entree"))
         stock_menu.add_command(label="Historique", 
-                              command=self.transaction_ui.afficher_historique)
+                              command=lambda: self.transaction_ui.afficher_historique() if hasattr(self, 'transaction_ui') else None)
         menu_bar.add_cascade(label="Stock", menu=stock_menu)
         
         # Menu Aide
@@ -295,31 +345,25 @@ class ApplicationPrincipale:
         
         self.root.config(menu=menu_bar)
     
+    def creer_barre_statut(self):
+        """Crée la barre de statut au bas de l'application."""
+        self.barre_statut = tk.Label(self.root, text="Prêt", relief=tk.SUNKEN, anchor=tk.W)
+        self.barre_statut.pack(side=tk.BOTTOM, fill=tk.X)
+    
     def export_data(self):
-        """
-        Exporte les données de l'application.
-        """
-        # À implémenter
+        """Exporte les données de l'application."""
         messagebox.showinfo("Export", "Fonctionnalité d'export à implémenter")
     
     def import_data(self):
-        """
-        Importe des données dans l'application.
-        """
-        # À implémenter
+        """Importe des données dans l'application."""
         messagebox.showinfo("Import", "Fonctionnalité d'import à implémenter")
     
     def show_documentation(self):
-        """
-        Affiche la documentation de l'application.
-        """
-        # À implémenter
+        """Affiche la documentation de l'application."""
         messagebox.showinfo("Documentation", "Documentation à implémenter")
     
     def show_about(self):
-        """
-        Affiche les informations sur l'application.
-        """
+        """Affiche les informations sur l'application."""
         about_window = tk.Toplevel(self.root)
         about_window.title("À propos")
         about_window.geometry("400x300")
@@ -333,20 +377,13 @@ class ApplicationPrincipale:
         tk.Button(about_window, text="Fermer", command=about_window.destroy, width=10).pack(pady=10)
     
     def quitter(self):
-        """
-        Quitte l'application avec confirmation.
-        """
+        """Quitte l'application avec confirmation."""
         if messagebox.askokcancel("Quitter", "Voulez-vous vraiment quitter l'application?"):
             self.root.destroy()
             sys.exit(0)
             
     def afficher_menu_contextuel(self, event):
-        """
-        Affiche le menu contextuel lors d'un clic droit.
-        
-        Args:
-            event: Événement du clic droit.
-        """
+        """Affiche le menu contextuel lors d'un clic droit."""
         try:
             item = self.table.identify_row(event.y)
             if item:
@@ -356,17 +393,17 @@ class ApplicationPrincipale:
             return "break"
     
     def mettre_a_jour_categories(self):
-        """
-        Met à jour la liste des catégories dans le combobox.
-        """
-        categories = set(article.categorie for article in self.gestionnaire_stock.articles.values())
-        self.combo_categorie["values"] = ["Toutes"] + sorted(list(categories))
-        self.combo_categorie.current(0)  # Sélectionner "Toutes" par défaut
+        """Met à jour la liste des catégories dans le combobox."""
+        if hasattr(self, 'combo_categorie'):
+            categories = set(article.categorie for article in self.gestionnaire_stock.articles.values())
+            self.combo_categorie["values"] = ["Toutes"] + sorted(list(categories))
+            self.combo_categorie.current(0)  # Sélectionner "Toutes" par défaut
     
     def charger_articles(self):
-        """
-        Charge les articles dans le tableau.
-        """
+        """Charge les articles dans le tableau."""
+        if not hasattr(self, 'table'):
+            return
+            
         # Effacer le tableau
         for item in self.table.get_children():
             self.table.delete(item)
@@ -385,13 +422,14 @@ class ApplicationPrincipale:
                 f"{article.prix_unitaire:.2f}€",
                 f"{valeur:.2f}€",
                 etat_alerte,
-                article.emplacement
+                article.emplacement or ""
             ))
     
     def mettre_a_jour_statistiques(self):
-        """
-        Met à jour les indicateurs statistiques.
-        """
+        """Met à jour les indicateurs statistiques."""
+        if not hasattr(self, 'label_total_articles'):
+            return
+            
         nb_articles = len(self.gestionnaire_stock.articles)
         valeur_totale = self.gestionnaire_stock.obtenir_valeur_totale_stock()
         articles_rupture = len(self.gestionnaire_stock.obtenir_articles_en_rupture())
@@ -403,12 +441,10 @@ class ApplicationPrincipale:
         self.label_alerte.config(text=f"En alerte: {articles_alerte}")
     
     def rechercher_articles(self, event=None):
-        """
-        Recherche des articles en fonction du terme de recherche et de la catégorie.
-        
-        Args:
-            event: Événement déclencheur (optionnel).
-        """
+        """Recherche des articles en fonction du terme de recherche et de la catégorie."""
+        if not hasattr(self, 'entry_recherche') or not hasattr(self, 'combo_categorie'):
+            return
+            
         terme = self.entry_recherche.get().strip()
         categorie_selection = self.combo_categorie.get()
         categorie = None if categorie_selection == "Toutes" else categorie_selection
@@ -439,21 +475,41 @@ class ApplicationPrincipale:
                 f"{article.prix_unitaire:.2f}€",
                 f"{valeur:.2f}€",
                 etat_alerte,
-                article.emplacement
+                article.emplacement or ""
             ))
 
+
 def main():
+    """Fonction de test pour lancer directement le dashboard."""
     try:
         root = tk.Tk()
-        # ...configuration fenêtre...
-
+        
+        # Configuration de base
+        root.title("Application de Gestion Financière et Stock")
+        root.geometry("1200x700")
+        
+        # Initialiser les gestionnaires
+        from app.finance.controllers.gestionnaire_financier import GestionnaireFinancier
+        from app.stock.controllers.gestionnaire_stock import GestionnaireStock
+        
         gestionnaire_financier = GestionnaireFinancier()
         gestionnaire_stock = GestionnaireStock()
-
+        
+        # Créer l'application
         app = ApplicationPrincipale(root, gestionnaire_financier, gestionnaire_stock)
-        # ...fermeture fenêtre et mainloop...
+        
+        # Gérer la fermeture
+        def on_closing():
+            if messagebox.askokcancel("Quitter", "Voulez-vous vraiment quitter l'application?"):
+                root.destroy()
+        
+        root.protocol("WM_DELETE_WINDOW", on_closing)
+        
+        # Lancer l'interface
+        root.mainloop()
+        
     except Exception as e:
-        messagebox.showerror("Erreur", f"Erreur lors du démarrage de l'application: {str(e)}")
+        messagebox.showerror("Erreur", f"Erreur lors du lancement: {str(e)}")
 
 if __name__ == "__main__":
     main()
