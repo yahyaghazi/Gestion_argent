@@ -1,6 +1,10 @@
+import sys
 import datetime
 import tkinter as tk
 from tkinter import ttk, messagebox
+from app.core.config import APP_CONFIG
+from app.finance.controllers.gestionnaire_financier import GestionnaireFinancier
+from app.stock.controllers.gestionnaire_stock import GestionnaireStock
 from app.stock.views.article_ui import ArticleUI
 from app.stock.views.transaction_ui import TransactionUI
 from app.stock.views.rapport_ui import RapportUI
@@ -437,3 +441,19 @@ class ApplicationPrincipale:
                 etat_alerte,
                 article.emplacement
             ))
+
+def main():
+    try:
+        root = tk.Tk()
+        # ...configuration fenêtre...
+
+        gestionnaire_financier = GestionnaireFinancier()
+        gestionnaire_stock = GestionnaireStock()
+
+        app = ApplicationPrincipale(root, gestionnaire_financier, gestionnaire_stock)
+        # ...fermeture fenêtre et mainloop...
+    except Exception as e:
+        messagebox.showerror("Erreur", f"Erreur lors du démarrage de l'application: {str(e)}")
+
+if __name__ == "__main__":
+    main()

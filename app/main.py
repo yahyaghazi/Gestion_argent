@@ -57,6 +57,7 @@ def main():
         
     except Exception as e:
         messagebox.showerror("Erreur", f"Une erreur est survenue lors du lancement de l'application:\n{str(e)}")
+        print(f"Une erreur est survenue lors du lancement de l'application:\n{str(e)}")
         sys.exit(1)
 
 if __name__ == "__main__":
